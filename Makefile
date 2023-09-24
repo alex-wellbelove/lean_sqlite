@@ -1,2 +1,12 @@
-all:
-	leanc -o ./build/bin/lean_sqlite ./build/ir/Main.o ./build/ir/LeanSqlite/FFI/Sqlite.o ./build/lib/libffi.a -L/opt/homebrew/opt/sqlite/lib -lsqlite3
+
+.PHONY: all build run
+
+build:
+	lake build
+
+run:
+	./build/bin/lean_sqlite
+
+
+all: build run
+	@echo "Nothing to do for $@"
