@@ -112,7 +112,6 @@ lean_obj_res lean_sqlite_initialize()
 {
     g_sqlite_db_external_class = lean_register_external_class(sqlite_db_finalizer, noop_foreach);
     g_sqlite_stmt_external_class = lean_register_external_class(sqlite_db_finalizer, noop_foreach);
-    printf("initialized");
     return lean_io_result_mk_ok(lean_box(0));
 }
 
@@ -136,7 +135,6 @@ lean_obj_res lean_sqlite3_open(b_lean_obj_arg path_obj, lean_obj_arg w)
         return lean_io_result_mk_error(get_sqlite_error(db));
     }
 
-    printf("Opened db in native.c");
     return lean_io_result_mk_ok(sqlite_db_box(db));
 }
 
@@ -145,7 +143,6 @@ lean_obj_res lean_sqlite3_open(b_lean_obj_arg path_obj, lean_obj_arg w)
  */
 lean_obj_res lean_sqlite3_close(b_lean_obj_arg db_obj, lean_obj_arg w)
 {
-    printf("Closing db\n");
     sqlite3 *db = sqlite_db_unbox(db_obj);
     int rc = sqlite3_close(db);
 
@@ -162,7 +159,6 @@ lean_obj_res lean_sqlite3_close(b_lean_obj_arg db_obj, lean_obj_arg w)
  */
 lean_obj_res lean_sqlite3_exec(b_lean_obj_arg db_obj, b_lean_obj_arg sql_obj, lean_obj_arg w) 
 {
-    printf("Executing\n");
     sqlite3 *db = sqlite_db_unbox(db_obj);
     const char *sql = lean_string_cstr(sql_obj);
     char *err_msg = 0;
@@ -205,6 +201,20 @@ lean_obj_res lean_stmt_get_int_column (b_lean_obj_arg stmt_obj, b_lean_obj_arg i
     sqlite3_stmt *stmt = sqlite_stmt_unbox(stmt_obj);
     int index_int = lean_unbox(index);
     int col = sqlite3_column_int(stmt, index_int);
+    return lean_io_result_mk_ok(lean_box(col));
+}
+
+lean_obj_res lean_stmt_get_string_column (b_lean_obj_arg stmt_obj, b_lean_obj_arg index,  lean_obj_arg w) {
+    sqlite3_stmt *stmt = sqlite_stmt_unbox(stmt_obj);
+    int index_int = lean_unbox(index);
+    int col = sqlite3_column_text(stmt, index_int);
+    return lean_io_result_mk_ok(lean_box(col));
+}
+
+lean_obj_res lean_stmt_get_double_column (b_lean_obj_arg stmt_obj, b_lean_obj_arg index,  lean_obj_arg w) {
+    sqlite3_stmt *stmt = sqlite_stmt_unbox(stmt_obj);
+    int index_int = lean_unbox(index);
+    int col = sqlite3_column_double(stmt, index_int);
     return lean_io_result_mk_ok(lean_box(col));
 }
 

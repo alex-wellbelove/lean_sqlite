@@ -1,25 +1,17 @@
-import LeanSqlite.FFI.Database
+import LeanSqlite.Database
+import LeanSqlite.Rows
 
 open Database
 open Statement
-
-def getRows (stmt: Statement) : IO Unit := do
-  -- let ret ← step stmt
-  repeat do
-    let mut ret ← step stmt
-    IO.println ret
-    if ret == StepResult.StepDone then break
-    let mut col ← (get_int_column stmt 0)
-    -- let (col : Int) ← get_int_column stmt 0
-    IO.println (col : Int)
-    
+open Rows
 
 
 def main : IO Unit := do
   IO.println s!"Hello"
-  let v : Database ← (Sqlite.Database.open "test.sqlite")
-  let stmt : Statement ←  prepare v "select value from test_table"
-  getRows stmt
+  let v : Database ← (open_db "test.sqlite")
+  let stmt : Statement ←  prepare v "select 2 from test_table"
+  let r : List (Int) ← getRows stmt
+  IO.println r
   close_statement stmt
   IO.println s!"Closed stmt"
   close v
