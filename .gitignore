@@ -2,3 +2,4 @@
 /lake-packages/*
 test.sqlite
 .vscode
+examples/**/build

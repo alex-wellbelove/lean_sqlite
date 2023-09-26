@@ -11,13 +11,6 @@ lean_lib LeanSqlite {
 }
 
 
-@[default_target]
-lean_exe «lean_sqlite» {
-  root := `Main
-  moreLinkArgs := #["-L/opt/homebrew/opt/sqlite/lib","-lsqlite3"]
-}
-
-
 def cDir   := "native"
 def ffiSrc := "native.c"
 def ffiO   := "ffi.o"
@@ -34,3 +27,17 @@ extern_lib ffi (pkg : NPackage "LeanSqlite") := do
   let name := nameToStaticLib ffiLib
   let ffiO ← fetch <| pkg.target ``ffi.o
   buildStaticLib (pkg.buildDir / "lib" / name) #[ffiO]
+
+
+script examples do
+  let examplesDir ← ("examples" : FilePath).readDir
+  for ex in examplesDir do
+    IO.println ex.path
+    let o ← IO.Process.output {
+      cmd := "lake"
+      args := #["exe","Main"]
+      cwd := ex.path
+    }
+    IO.println o.stderr
+    IO.println o.stdout
+  return 0
