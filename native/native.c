@@ -33,7 +33,8 @@ static lean_obj_res get_sqlite_error(sqlite3 *db)
 
 static lean_obj_res get_stmt_error(sqlite3_stmt *stmt)
 {
-    const char *err_msg = sqlite3_errmsg(stmt);
+    sqlite3 *db = sqlite3_db_handle(stmt);
+    const char *err_msg = sqlite3_errmsg(db);
     lean_object *details = lean_mk_string(err_msg);
     return lean_mk_io_user_error(details);
 }
@@ -207,15 +208,15 @@ lean_obj_res lean_stmt_get_int_column (b_lean_obj_arg stmt_obj, b_lean_obj_arg i
 lean_obj_res lean_stmt_get_string_column (b_lean_obj_arg stmt_obj, b_lean_obj_arg index,  lean_obj_arg w) {
     sqlite3_stmt *stmt = sqlite_stmt_unbox(stmt_obj);
     int index_int = lean_unbox(index);
-    int col = sqlite3_column_text(stmt, index_int);
-    return lean_io_result_mk_ok(lean_box(col));
+    const char* col = (const char*)sqlite3_column_text(stmt, index_int);
+    return lean_io_result_mk_ok(lean_mk_string(col));
 }
 
 lean_obj_res lean_stmt_get_double_column (b_lean_obj_arg stmt_obj, b_lean_obj_arg index,  lean_obj_arg w) {
     sqlite3_stmt *stmt = sqlite_stmt_unbox(stmt_obj);
     int index_int = lean_unbox(index);
-    int col = sqlite3_column_double(stmt, index_int);
-    return lean_io_result_mk_ok(lean_box(col));
+    double col = sqlite3_column_double(stmt, index_int);
+    return lean_io_result_mk_ok(lean_box_float(col));
 }
 
 lean_obj_res lean_stmt_close (b_lean_obj_arg stmt_obj, lean_obj_arg w) {
